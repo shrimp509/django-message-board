@@ -1,11 +1,11 @@
 # Django留言板練習題 at 好想
 
 ## [專案需求](https://www.notion.so/60bbd52758b64bbc9f80a2d046a9f589)
-![](https://github.com/shrimp509/django_message_board/screenshots/requirements.png)
+![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/requirements.png)
 
 ## 畫面截圖
-![](https://github.com/shrimp509/django_message_board/screenshots/login.png)
-![](https://github.com/shrimp509/django_message_board/screenshots/board.png)
+![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/login.png)
+![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/board.png)
 
 ## 未完成
 * 僅完成對發文的第一層留言
