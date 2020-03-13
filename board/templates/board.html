@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Board</title>
+</head>
+<body>
+
+<div align="center">
+    {% if name != None %}
+    <h1>------ 哈囉，{{ name }} ------</h1>
+    {% else %}
+    <h1>你還沒登入呢~</h1>
+    {% endif %}
+</div>
+
+<div align="center">
+    <h2>留下你的足跡吧</h2>
+    <form method="post" action=""> {% csrf_token %}
+        {{ post_form.as_p }}<input type="submit" value="送出留言">
+    </form>
+</div>
+
+<br><br><br>
+
+<h1 align="center">------ 歷史留言版: ({{ posts | length }}則) ------</h1>
+
+<div align="center">
+    {% if posts != None %}
+        <ul style="list-style-type:none;">
+            {% for post in posts %}
+            <li>
+                <h3>ID:{{ post.id }} | {{ post.content }} | by {{ post.publisher }}</h3>
+
+                {% for comment in comments %}
+                    {% if post.id|add:0 == comment.post_id|add:0 %}
+                        <t>留言：{{ comment.content }} by {{ comment.publisher }}</t><br>
+                    {% endif %}
+                {% endfor %}
+
+                <br><br>
+
+                <form method="post" action="comment/"> {% csrf_token %}
+                    <input type="hidden" value={{ post.id }} name="post_id">
+                    <input type="text" placeholder="留下你想對他說的話" name="content"> <input type="submit" value="確認留言">
+                </form>
+            </li>
+            <br>--------------------------------------------------------------<br>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
