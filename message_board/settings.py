@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account',
     'board',
     'login',
 ]
@@ -119,5 +120,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_ROOT = 'static'
+# 部署的時候，執行 collectstatic，才會把各app的static檔案，依照 STATIC_ROOT 的路徑
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+
+# STATIC_URL，是把static資源，以url的方式呈現
 STATIC_URL = '/static/'
+
+# 可以把共同的 static 檔案放在 STATICFILES_DIRS
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'common_statics'),
+    # ("common_statics", "/css")
+)
