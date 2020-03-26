@@ -19,7 +19,7 @@ class User(models.Model):
     is_staff = models.fields.BooleanField(default=False)
     is_active = models.fields.BooleanField(default=True)
     is_admin = models.fields.BooleanField(default=False)
-    last_login = models.fields.DateTimeField(blank=True)
+    last_login = models.fields.DateTimeField(null=True, blank=True)
     date_joined = models.fields.DateField(default=timezone.now)
 
     def get_username(self):
@@ -30,4 +30,8 @@ class User(models.Model):
 
     def get_email(self):
         return self.email
+
+    def __str__(self):
+        return str(self.first_name) + " " + str(self.last_name)
+
 
