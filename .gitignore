@@ -1,4 +1,5 @@
-./idea
+./.idea
 ./db.sqlite3
 ./.DS_Store
 ./venv/*
+./message_board/settings.py

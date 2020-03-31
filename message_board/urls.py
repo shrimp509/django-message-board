@@ -16,8 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from board.views import board_view, board_login_view, comment_view
-from account.views import register_view, register_result_view, \
-    login_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,8 +25,8 @@ urlpatterns = [
     path('board/<str:name>/', board_login_view),
     path('board/<str:name>/comment/', comment_view),
 
-    path('register/', register_view),
-    path('register/result/', register_result_view),
+    path('register/', ),
+    path('register/result/', ),
 
-    path('login/', login_view),
+    path('login/', ),
 ]

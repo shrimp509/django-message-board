@@ -8,10 +8,6 @@ from .form_checker import check_register_data
 import json
 
 
-def register_view(request):
-    return render(request, "register.html", {})
-
-
 @csrf_exempt
 def register_result_view(request: WSGIRequest):
     if request.method == "GET":
