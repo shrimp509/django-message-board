@@ -1,23 +1,21 @@
-from .forms import UserForm
 
 
-def check_register_data(form: UserForm):
-    custom_print("form valid, get data: ", form.data)
+def check_register_data(raw_data):
 
     # check account format
-    account = form.data.get('account')
+    account = raw_data.get('account')
     if len(account) > 30:
         custom_print("account length error, length of account: ", len(account))
         return False
 
     # check password format
-    password = form.data.get('password')
+    password = raw_data.get('password')
     if len(password) > 30:
         custom_print("password length error, length of password: ", len(password))
         return False
 
     # check birthday format (1994-05-09)
-    birthday = form.data.get('birthday')
+    birthday = raw_data.get('birthday')
     birthday_list = str(birthday).split('-')
     if len(birthday_list) == 3:
         year = birthday_list[0]
@@ -33,13 +31,13 @@ def check_register_data(form: UserForm):
         return False
 
     # check phone format
-    phone = form.data.get('phone')
+    phone = raw_data.get('phone')
     if not str(phone).startswith('09') and not str(phone).startswith('+886'):
         custom_print("phone format error, phone: ", str(phone))
         return False
 
     # check email format
-    email = form.data.get('email')
+    email = raw_data.get('email')
     email_list = str(email).split('@')
     if len(email_list) == 2:
         email_account = email_list[0]
@@ -53,19 +51,19 @@ def check_register_data(form: UserForm):
         return False
 
     # check first name format
-    first_name = form.data.get('first_name')
+    first_name = raw_data.get('first_name')
     if len(first_name) > 20:
         custom_print("first_name format error, len of first_name: ", len(first_name))
         return False
 
     # check last name format
-    last_name = form.data.get('last_name')
+    last_name = raw_data.get('last_name')
     if len(last_name) > 20:
         custom_print("last_name format error, len of last_name: ", len(last_name))
         return False
 
     # check gender format
-    gender = form.data.get('gender')
+    gender = raw_data.get('gender')
     if gender != 'male' and gender != 'female':
         print("gender format error, is not boolean: ", gender, ", type: ", type(gender))
         return False

@@ -1,30 +1,27 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.core.handlers.wsgi import WSGIRequest
-# from django.views.decorators.csrf import csrf_exempt
-from .form_checker import check_register_data
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
-from .forms import UserForm
+from .models import User
+from .form_checker import check_register_data
+import json
 
 
 def register_view(request):
     return render(request, "register.html", {})
 
 
-def register_send_view(request: WSGIRequest):
-    user_form = UserForm(request.POST or None)
-    if user_form.is_valid():
-        if check_register_data(user_form):
-            print("data checked, save to model")
-            user_form.save()
-        else:
-            print("data checkd error")
-    else:
-        print("errors: ", user_form.errors)
-        print("error, get data: ", user_form.data)
+@csrf_exempt
+def register_result_view(request: WSGIRequest):
+    if request.method == "GET":
+        return JsonResponse({"first": "string data", 10: "Hello"})
+    elif request.method == "POST":
+        decoded_body = json.loads(request.body)
+        return JsonResponse({"get your post data": decoded_body})
 
-    return redirect("/register/")
+    return JsonResponse({"status": "wrong"})
 
 
 def login_view(request):
     return render(request, 'login.html', {})
-
