@@ -3,12 +3,41 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
 from .models import User
-from .form_checker import check_register_data
+from .data_checker import check_register_data
 import json
 
 
 @csrf_exempt
 def register(request: WSGIRequest):
-    return ""
+    if request.method == "POST":
+        user = json.loads(request.body)
+
+        # analyze data format
+        try:
+            (success, err_msg) = check_register_data(user)
+        except Exception as e:
+            return return_status("Wrong field format: {}".format(e))
+
+        # save to db if valid
+        if success:
+            dict2object_user(user).save()
+            return return_status("User created")
+        else:
+            return return_status("Wrong field", err_msg)
+
+    return return_status("Wrong method", err_msg="no GET method in register")
 
 
+def return_status(message: str, err_msg=None):
+    if err_msg is None:
+        return JsonResponse({"status": message})
+    else:
+        return JsonResponse({"status": message, "err_msg": err_msg})
+
+
+def dict2object_user(user_dict):
+    user = User()
+    user.name = user_dict['name']
+    user.password = user_dict['password']
+    user.email = user_dict['email']
+    return user

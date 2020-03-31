@@ -15,18 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from board.views import board_view, board_login_view, comment_view
 
+from account.apis import register
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('board/', board_view),
-    path('board/<str:name>/', board_login_view),
-    path('board/<str:name>/comment/', comment_view),
-
-    path('register/', ),
-    path('register/result/', ),
-
-    path('login/', ),
+    path('api/v1/register/', register),
+    # path('login/', ),
 ]
