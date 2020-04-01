@@ -11,15 +11,16 @@ import json
 def register(request: WSGIRequest):
     if request.method == "POST":
         user = json.loads(request.body)
+        print("user type: ", type(user))
 
         # analyze data format
         try:
-            (success, err_msg) = check_register_data(user)
+            err_msg = check_register_data(user)
         except Exception as e:
-            return return_status("Wrong field format: {}".format(e))
+            return return_status("Please contact backend developer, Wrong field format, raw error: {}".format(e))
 
         # save to db if valid
-        if success:
+        if err_msg is None:
             dict2object_user(user).save()
             return return_status("User created")
         else:
