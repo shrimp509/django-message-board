@@ -1,5 +1,5 @@
 from django.test import TestCase
-from account.data_checker import check_register_data, check_name, check_email, check_password
+from account.data_checker import check_register_data, check_register_name, check_register_email, check_register_password
 
 
 class RegisterApiTest(TestCase):
@@ -69,46 +69,46 @@ class RegisterApiTest(TestCase):
 
     def test_register_name(self):
         # should be OK
-        self.assertIsNone(check_name("Sam"))
-        self.assertIsNone(check_name("我是何榮森"))
-        self.assertIsNone(check_name("1"))
-        self.assertIsNone(check_name("3.14159"))
-        self.assertIsNone(check_name("-_+@, .\/`~!#$%^&*()"))
-        self.assertIsNone(check_name("一二三四五六七八九十一二三四五六七八九十"))
+        self.assertIsNone(check_register_name("Sam"))
+        self.assertIsNone(check_register_name("我是何榮森"))
+        self.assertIsNone(check_register_name("1"))
+        self.assertIsNone(check_register_name("3.14159"))
+        self.assertIsNone(check_register_name("-_+@, .\/`~!#$%^&*()"))
+        self.assertIsNone(check_register_name("一二三四五六七八九十一二三四五六七八九十"))
 
         # should be not OK
-        self.assertIsNotNone(check_name(""))
-        self.assertIsNotNone(check_name("一二三四五六七八九十一二三四五六七八九十一"))
+        self.assertIsNotNone(check_register_name(""))
+        self.assertIsNotNone(check_register_name("一二三四五六七八九十一二三四五六七八九十一"))
 
     def test_register_password(self):
         # should be OK
-        self.assertIsNone(check_password("123456"))
-        self.assertIsNone(check_password("my_password"))
-        self.assertIsNone(check_password("!@#$%^&*()+{}[],./\s1"))
+        self.assertIsNone(check_register_password("123456"))
+        self.assertIsNone(check_register_password("my_password"))
+        self.assertIsNone(check_register_password("!@#$%^&*()+{}[],./\s1"))
 
         # should be not OK
-        self.assertIsNotNone(check_password(""))
-        self.assertIsNotNone(check_password("1"))
-        self.assertIsNotNone(check_password("12"))
-        self.assertIsNotNone(check_password("123"))
-        self.assertIsNotNone(check_password("1234"))
-        self.assertIsNotNone(check_password("12345"))
+        self.assertIsNotNone(check_register_password(""))
+        self.assertIsNotNone(check_register_password("1"))
+        self.assertIsNotNone(check_register_password("12"))
+        self.assertIsNotNone(check_register_password("123"))
+        self.assertIsNotNone(check_register_password("1234"))
+        self.assertIsNotNone(check_register_password("12345"))
 
     def test_register_email(self):
         # should be OK
-        self.assertIsNone(check_email("test@gmail.com"))
-        self.assertIsNone(check_email("test@hotmail.com"))
-        self.assertIsNone(check_email("12345678901234567890123456789012345@gmail.com"))
+        self.assertIsNone(check_register_email("test@gmail.com"))
+        self.assertIsNone(check_register_email("test@hotmail.com"))
+        self.assertIsNone(check_register_email("12345678901234567890123456789012345@gmail.com"))
 
         # should be not OK
-        self.assertIsNotNone(check_email(""))
-        self.assertIsNotNone(check_email("@"))
-        self.assertIsNotNone(check_email("@gmail"))
-        self.assertIsNotNone(check_email("@hotmail"))
-        self.assertIsNotNone(check_email("@gmail.com"))
-        self.assertIsNotNone(check_email("@hotmail.com"))
-        self.assertIsNotNone(check_email("@hotmail.com"))
-        self.assertIsNotNone(check_email("test@hotmail"))
-        self.assertIsNotNone(check_email("test@gmail"))
-        self.assertIsNotNone(check_email("123456789012345678901234567890123456@gmail.com"))
+        self.assertIsNotNone(check_register_email(""))
+        self.assertIsNotNone(check_register_email("@"))
+        self.assertIsNotNone(check_register_email("@gmail"))
+        self.assertIsNotNone(check_register_email("@hotmail"))
+        self.assertIsNotNone(check_register_email("@gmail.com"))
+        self.assertIsNotNone(check_register_email("@hotmail.com"))
+        self.assertIsNotNone(check_register_email("@hotmail.com"))
+        self.assertIsNotNone(check_register_email("test@hotmail"))
+        self.assertIsNotNone(check_register_email("test@gmail"))
+        self.assertIsNotNone(check_register_email("123456789012345678901234567890123456@gmail.com"))
 

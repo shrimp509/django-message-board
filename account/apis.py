@@ -2,16 +2,35 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
+from message_board import settings
 from .models import User
-from .data_checker import check_register_data
-import json
+from .data_checker import check_register_data, check_login_data
+import json, jwt, time
+
+
+'''
+Get `Email` and `Password` from request body
+then, return a JWT token
+'''
+@csrf_exempt
+def login(request: WSGIRequest):
+    if request.method == "POST":
+        account = json.loads(request.body)
+        err_msg = check_login_data(account)
+
+        if err_msg is None:
+            return return_status("Login succeed", token=get_token(
+                account['email'],
+                account['password']
+            ))
+        else:
+            return return_status("Login failed", err_msg)
 
 
 @csrf_exempt
 def register(request: WSGIRequest):
     if request.method == "POST":
         user = json.loads(request.body)
-        print("user type: ", type(user))
 
         # analyze data format
         try:
@@ -29,11 +48,21 @@ def register(request: WSGIRequest):
     return return_status("Wrong method", err_msg="no GET method in register")
 
 
-def return_status(message: str, err_msg=None):
-    if err_msg is None:
+def return_status(message: str, err_msg=None, **kwargs):
+    if err_msg is None and kwargs is None:
         return JsonResponse({"status": message})
-    else:
+    elif err_msg is not None and kwargs is None:
         return JsonResponse({"status": message, "err_msg": err_msg})
+    elif err_msg is None and kwargs is not None:
+        msg = {"stauts": message}
+        for key, value in kwargs.items():
+            msg[key] = value
+        return JsonResponse(msg)
+    else:
+        msg = {"status": message, "err_msg": err_msg}
+        for key, value in kwargs.items():
+            msg[key] = value
+        return JsonResponse(msg)
 
 
 def dict2object_user(user_dict):
@@ -42,3 +71,7 @@ def dict2object_user(user_dict):
     user.password = user_dict['password']
     user.email = user_dict['email']
     return user
+
+
+def get_token(email: str, password: str):
+    return jwt.encode({'email': email, 'password': password, 'exp': int(time.time()) + 86400 * 7}, settings.SECRET_KEY, 'HS256').decode('UTF-8')
