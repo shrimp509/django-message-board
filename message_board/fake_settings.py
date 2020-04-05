@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'i8e@jxn62sg0gs)v(pw(zsd!rr%j%opvlhjlw1q0q!qe&8bn6@'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account',
     'board',
-    'login',
 ]
 
 MIDDLEWARE = [
@@ -119,5 +119,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_ROOT = 'static'
+# 部署的時候，執行 collectstatic，才會把各app的static檔案，依照 STATIC_ROOT 的路徑
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+
+# STATIC_URL，是把static資源，以url的方式呈現
 STATIC_URL = '/static/'
+
+# 可以把共同的 static 檔案放在 STATICFILES_DIRS
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'common_statics'),
+    # ("common_statics", "/css")
+)

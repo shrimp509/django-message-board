@@ -15,13 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from login.views import login_view
-from board.views import board_view, board_login_view, comment_view
+
+from account.apis import register, login
+from board.apis import post
+
+api_path = 'api/v1/'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', login_view),
-    path('board/', board_view),
-    path('board/<str:name>/', board_login_view),
-    path('board/<str:name>/comment/', comment_view),
+
+    path(api_path + 'register/', register),
+    path(api_path + 'login/', login),
+    path(api_path + 'board/post/', post),
 ]
