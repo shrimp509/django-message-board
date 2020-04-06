@@ -26,7 +26,7 @@ def post(request: WSGIRequest):
             # valid token
             request_body = _resolve_request_body(request)
             try:
-                if save_post(request_body, token_body):
+                if _save_post(request_body, token_body):
                     return _return_status('Post created')
                 else:
                     return _return_status('Failed to create Post')
@@ -72,20 +72,22 @@ def _resolve_jwt(token):
     except jwt.ExpiredSignatureError as e:
         print("expired")
         return "token expired"
+    except Exception as e:
+        return "token invalid"
 
 
 def _resolve_request_body(request):
     return json.loads(request.body)
 
 
-def save_post(request_body: dict, token_body: TokenBody):
+def _save_post(request_body: dict, token_body: TokenBody):
     # create db object
     new_post = Post()
 
     # find user
     user = find_user(token_body.email)
 
-    if user is User:
+    if isinstance(user, User):
         new_post.author = user
         new_post.content = request_body['content']
         new_post.save()

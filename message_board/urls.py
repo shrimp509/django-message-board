@@ -25,6 +25,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path(api_path + 'register/', register),
+    path(api_path + 'register', register),
+
     path(api_path + 'login/', login),
+    path(api_path + 'login', login),
+
     path(api_path + 'board/post/', post),
+    path(api_path + 'board/post', post),
 ]
