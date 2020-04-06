@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from message_board.settings import SECRET_KEY
 
-from .models import Post
+from .models import Post, Comment, T2Comment
 from account.data_checker import find_user
 from account.models import User
 
@@ -17,6 +17,8 @@ from account.models import User
 @csrf_exempt
 def post(request: WSGIRequest):
     if request.method == 'GET':
+        all_posts = _get_all_posts()
+        print("get all posts: ", all_posts)
         return _return_status('this is GET method of post, not yet implemented')
     elif request.method == 'POST':
 
@@ -94,3 +96,61 @@ def _save_post(request_body: dict, token_body: TokenBody):
         return True
     else:
         return False
+
+
+def _get_all_posts():
+    # all posts
+    all_posts = Post.objects.all()
+
+    posts = []
+
+    # pack all posts into dict
+    for _post in all_posts:
+        _all_comments = _get_all_comments(_post)
+        post_data = {
+            'post_id': _post.id,
+            'author': _post.author,
+            'published': _post.created,
+            'content': _post.content,
+            'liked': _post.liked,
+            'comments': _all_comments,
+            'comments_count': len(_all_comments)
+        }
+        posts.append(post_data)
+
+    return posts
+
+
+def _get_all_t2_comments(comment: Comment):
+    _t2_comments = []
+
+    for t2_comment in comment.t2comment_set.all():
+        t2comment_data = {
+            'comment_id': t2_comment.comment,
+            'author': t2_comment.author,
+            'published': t2_comment.created,
+            'content': t2_comment.content,
+            'liked': t2_comment.liked,
+        }
+        _t2_comments.append(t2comment_data)
+
+    return _t2_comments
+
+
+def _get_all_comments(post: Post):
+    _comments = []
+
+    for comment in post.comment_set.all():
+        _t2comments = _get_all_t2_comments(comment)
+        comment_data = {
+            'post_id': comment.post,
+            'author': comment.author,
+            'published': comment.created,
+            'content': comment.content,
+            'liked': comment.liked,
+            't2_comments': _t2comments,
+            't2_comments_counts': len(_t2comments)
+        }
+        _comments.append(comment_data)
+
+    return _comments
