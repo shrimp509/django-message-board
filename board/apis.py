@@ -1,12 +1,13 @@
 import jwt
 import json
+import datetime
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from message_board.settings import SECRET_KEY
 
-from .models import Post, Comment, T2Comment
+from .models import Post, Comment
 from account.data_checker import find_user
 from account.models import User
 
@@ -18,8 +19,7 @@ from account.models import User
 def post(request: WSGIRequest):
     if request.method == 'GET':
         all_posts = _get_all_posts()
-        print("get all posts: ", all_posts)
-        return _return_status('this is GET method of post, not yet implemented')
+        return _return_status('this is GET method of post, not yet implemented', posts=all_posts)
     elif request.method == 'POST':
 
         token_body = _resolve_jwt(request.headers.get('token'))
@@ -109,32 +109,17 @@ def _get_all_posts():
         _all_comments = _get_all_comments(_post)
         post_data = {
             'post_id': _post.id,
-            'author': _post.author,
-            'published': _post.created,
+            'author': str(_post.author),
+            'created': _format_time(_post.created),
+            'last_updated': _format_time(_post.last_updated),
             'content': _post.content,
             'liked': _post.liked,
+            'comments_count': len(_all_comments),
             'comments': _all_comments,
-            'comments_count': len(_all_comments)
         }
         posts.append(post_data)
 
     return posts
-
-
-def _get_all_t2_comments(comment: Comment):
-    _t2_comments = []
-
-    for t2_comment in comment.t2comment_set.all():
-        t2comment_data = {
-            'comment_id': t2_comment.comment,
-            'author': t2_comment.author,
-            'published': t2_comment.created,
-            'content': t2_comment.content,
-            'liked': t2_comment.liked,
-        }
-        _t2_comments.append(t2comment_data)
-
-    return _t2_comments
 
 
 def _get_all_comments(post: Post):
@@ -143,14 +128,38 @@ def _get_all_comments(post: Post):
     for comment in post.comment_set.all():
         _t2comments = _get_all_t2_comments(comment)
         comment_data = {
-            'post_id': comment.post,
-            'author': comment.author,
-            'published': comment.created,
+            'post_id': comment.post.id,
+            'comment_id': comment.id,
+            'author': str(comment.author),
+            'created': _format_time(comment.created),
+            'last_updated': _format_time(comment.last_updated),
             'content': comment.content,
             'liked': comment.liked,
+            't2_comments_counts': len(_t2comments),
             't2_comments': _t2comments,
-            't2_comments_counts': len(_t2comments)
         }
         _comments.append(comment_data)
 
     return _comments
+
+
+def _get_all_t2_comments(comment: Comment):
+    _t2_comments = []
+
+    for t2_comment in comment.t2comment_set.all():
+        t2comment_data = {
+            'comment_id': t2_comment.comment.id,
+            't2_comment_id': t2_comment.id,
+            'author': str(t2_comment.author),
+            'created': _format_time(t2_comment.created),
+            'last_updated': _format_time(t2_comment.last_updated),
+            'content': t2_comment.content,
+            'liked': t2_comment.liked,
+        }
+        _t2_comments.append(t2comment_data)
+
+    return _t2_comments
+
+
+def _format_time(time: datetime.datetime):
+    return time.strftime('%Y-%m-%d %H:%M:%S')
