@@ -5,8 +5,9 @@ import datetime
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from message_board.settings import SECRET_KEY
+from django.db import models
 
+from message_board.settings import SECRET_KEY
 from .models import Post, Comment
 from account.data_checker import find_user
 from account.models import User
@@ -39,6 +40,35 @@ def post(request: WSGIRequest):
             return _return_status('Invalid token', err_msg='token invalid or expired')
     else:
         return _return_status('No such method')
+
+
+@csrf_exempt
+def comment(request: WSGIRequest, post_id: int):
+    if request.method == 'POST':
+        # check token
+        token_body = _resolve_jwt(request.headers.get('token'))
+
+        if type(token_body) is TokenBody:
+            # check post_id exist
+            post_exist = _find_model_exist(Post, id=post_id)
+            if post_exist is None:
+                return _return_status('No such post_id: {}'.format(post_id))
+            else:
+                user_exist = _find_model_exist(User, email=token_body.email)
+                if user_exist is None:
+                    return _return_status("No such email: {}".format(token_body.email))
+                else:
+                    # save comment and related to that post_id, if post_id exist
+                    new_comment = Comment()
+                    new_comment.post = post_exist
+                    new_comment.author = user_exist
+                    new_comment.content = json.loads(request.body)['content']
+                    new_comment.save()
+                    return _return_status("Comment created")
+        else:
+            return _return_status("Invalid token", err_msg='token invalid or expired')
+    else:
+        return _return_status("No such method")
 
 
 # #####################
@@ -163,3 +193,14 @@ def _get_all_t2_comments(comment: Comment):
 
 def _format_time(time: datetime.datetime):
     return time.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def _find_model_exist(model: models.Model, **conditions):
+    if len(conditions) == 1:
+        for key, value in conditions.items():
+            exist = model.objects.filter(**{key: value})
+            for obj in exist:
+                return obj
+        return None
+    else:
+        raise AttributeError("Only can throw one conditions")
