@@ -19,7 +19,7 @@ from account.models import User
 def post(request: WSGIRequest):
     if request.method == 'GET':
         all_posts = _get_all_posts()
-        return _return_status('this is GET method of post, not yet implemented', posts=all_posts)
+        return _return_status('Get posts succeed', posts=all_posts)
     elif request.method == 'POST':
 
         token_body = _resolve_jwt(request.headers.get('token'))

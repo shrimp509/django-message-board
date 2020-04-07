@@ -31,17 +31,46 @@ class PostApiTest(TestCase):
 
     def test_post_api(self):
 
-        # post succeed
+        # POST /board/post/ succeed
         response = json.loads(
             post(_get_request('/board/post/', {"content": '測試的發文哦'}, token=token)).content
         )['status']
         self.assertEqual('Post created', response)
 
-        # post failed
+        # POST /board/post/ failed
         response = json.loads(
             post(_get_request('/board/post/', {"wrong_key": 'key設錯惹'}, token=token)).content
         )['status']
         self.assertNotEqual('Post created', response)
+
+
+class GetPostApiTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        # create user
+        User.objects.create(name=name, email=email, password=password)
+
+        # get token when login
+        request = RequestFactory().post('/login/',
+                                        data=json.dumps({'email': email, 'password': password}),
+                                        content_type='application/json')
+        global token
+        token = json.loads(
+            login(request=request).content
+        )['token']
+
+        # post a post
+        post(_get_request('/board/post/', {"content": '測試的發文哦'}, token=token))
+
+    def test_post_api(self):
+
+        # GET /board/post/ succeed
+        response = json.loads(
+            post(RequestFactory().get('/board/post/')).content
+        )
+        self.assertEqual('Get posts succeed', response['status'])
+        self.assertEqual('測試的發文哦', response['posts'][0]['content'])
 
 
 # #####################
