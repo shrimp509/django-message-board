@@ -32,7 +32,8 @@ def post(request: WSGIRequest):
                 if _save_post(request_body, token_body):
                     return _return_status('Post created')
                 else:
-                    return _return_status('Failed to create Post')
+                    return _return_status('Failed to create Post',
+                                          err_msg='unexpected error, please contact backend developer')
             except KeyError as e:
                 return _return_status('Wrong request body format', err_msg='body should be `content`')
         else:
@@ -58,13 +59,16 @@ def comment(request: WSGIRequest, post_id: int):
                 if user_exist is None:
                     return _return_status("No such email: {}".format(token_body.email))
                 else:
-                    # save comment and related to that post_id, if post_id exist
-                    new_comment = Comment()
-                    new_comment.post = post_exist
-                    new_comment.author = user_exist
-                    new_comment.content = json.loads(request.body)['content']
-                    new_comment.save()
-                    return _return_status("Comment created")
+                    try:
+                        # save comment and related to that post_id, if post_id exist
+                        result = _save_comment(post_exist, user_exist, json.loads(request.body)['content'])
+                        if result:
+                            return _return_status("Comment created")
+                        else:
+                            return _return_status("Failed to create comment",
+                                                  err_msg='unexpected error, please contact backend developer')
+                    except KeyError as e:
+                        return _return_status("Wrong request body format", err_msg='body should be `content`')
         else:
             return _return_status("Invalid token", err_msg='token invalid or expired')
     else:
@@ -204,3 +208,16 @@ def _find_model_exist(model: models.Model, **conditions):
         return None
     else:
         raise AttributeError("Only can throw one conditions")
+
+
+def _save_comment(belonged_post: Post, user: User, content: str):
+    try:
+        # create db object
+        new_comment = Comment()
+        new_comment.post = belonged_post
+        new_comment.author = user
+        new_comment.content = content
+        new_comment.save()
+        return True
+    except Exception as e:
+        return False
