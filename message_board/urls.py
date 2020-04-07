@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from account.apis import register, login
-from board.apis import post, comment
+from board.apis import post, comment, t2_comment
 
 api_path = 'api/v1/'
 
@@ -35,4 +35,7 @@ urlpatterns = [
 
     path(api_path + 'board/post/<int:post_id>/comment/', comment),
     path(api_path + 'board/post/<int:post_id>/comment', comment),
+
+    path(api_path + 'board/comment/<int:comment_id>/t2_comment/', t2_comment),
+    path(api_path + 'board/comment/<int:comment_id>/t2_comment', t2_comment),
 ]

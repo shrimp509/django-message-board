@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import models
 
 from message_board.settings import SECRET_KEY
-from .models import Post, Comment
+from .models import Post, Comment, T2Comment
 from account.data_checker import find_user
 from account.models import User
 
@@ -55,6 +55,7 @@ def comment(request: WSGIRequest, post_id: int):
             if post_exist is None:
                 return _return_status('No such post_id: {}'.format(post_id))
             else:
+                # check user exist
                 user_exist = _find_model_exist(User, email=token_body.email)
                 if user_exist is None:
                     return _return_status("No such email: {}".format(token_body.email))
@@ -66,6 +67,39 @@ def comment(request: WSGIRequest, post_id: int):
                             return _return_status("Comment created")
                         else:
                             return _return_status("Failed to create comment",
+                                                  err_msg='unexpected error, please contact backend developer')
+                    except KeyError as e:
+                        return _return_status("Wrong request body format", err_msg='body should be `content`')
+        else:
+            return _return_status("Invalid token", err_msg='token invalid or expired')
+    else:
+        return _return_status("No such method")
+
+
+@csrf_exempt
+def t2_comment(request: WSGIRequest, comment_id: int):
+    if request.method == "POST":
+        # check token
+        token_body = _resolve_jwt(request.headers.get('token'))
+
+        if type(token_body) is TokenBody:
+            # check comment_id exist
+            comment_exist = _find_model_exist(Comment, id=comment_id)
+            if comment_exist is None:
+                return _return_status("No such comment_id: {}".format(comment_id))
+            else:
+                # check user exist
+                user_exist = _find_model_exist(User, email=token_body.email)
+                if user_exist is None:
+                    return _return_status("No such email: {}".format(token_body.email))
+                else:
+                    try:
+                        # save t2 comment and related to that comment_id, if comment_id exist
+                        result = _save_t2comment(comment_exist, user_exist, json.loads(request.body)['content'])
+                        if result:
+                            return _return_status("T2Comment created")
+                        else:
+                            return _return_status("Failed to create t2 comment",
                                                   err_msg='unexpected error, please contact backend developer')
                     except KeyError as e:
                         return _return_status("Wrong request body format", err_msg='body should be `content`')
@@ -215,6 +249,19 @@ def _save_comment(belonged_post: Post, user: User, content: str):
         # create db object
         new_comment = Comment()
         new_comment.post = belonged_post
+        new_comment.author = user
+        new_comment.content = content
+        new_comment.save()
+        return True
+    except Exception as e:
+        return False
+
+
+def _save_t2comment(belonged_comment: Comment, user: User, content: str):
+    try:
+        # create db object
+        new_comment = T2Comment()
+        new_comment.comment = belonged_comment
         new_comment.author = user
         new_comment.content = content
         new_comment.save()
