@@ -23,7 +23,7 @@ def post(request: WSGIRequest):
         return _return_status('Get posts succeed', posts=all_posts)
     elif request.method == 'POST':
 
-        token_body = _resolve_jwt(request.headers.get('token'))
+        token_body = _resolve_jwt(request.headers.get('Authorization'))
 
         if type(token_body) is TokenBody:
             # valid token
@@ -47,7 +47,7 @@ def post(request: WSGIRequest):
 def comment(request: WSGIRequest, post_id: int):
     if request.method == 'POST':
         # check token
-        token_body = _resolve_jwt(request.headers.get('token'))
+        token_body = _resolve_jwt(request.headers.get('Authorization'))
 
         if type(token_body) is TokenBody:
             # check post_id exist
@@ -80,7 +80,7 @@ def comment(request: WSGIRequest, post_id: int):
 def t2_comment(request: WSGIRequest, comment_id: int):
     if request.method == "POST":
         # check token
-        token_body = _resolve_jwt(request.headers.get('token'))
+        token_body = _resolve_jwt(request.headers.get('Authorization'))
 
         if type(token_body) is TokenBody:
             # check comment_id exist
