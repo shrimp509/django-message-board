@@ -356,6 +356,8 @@ def _check_request_format(request: WSGIRequest, method: str, resource: str, id: 
                         return res, None
                     return _return_status("Wrong body format, should contains `{}` field".format(field)), None
                 except Exception as e:
+                    if field is None and field_type is None:
+                        return res, None
                     return _return_status("Unexpected error, please contact backend developer"), None
             else:
                 return _return_status("{} id={} not found".format(resource, id)), None
