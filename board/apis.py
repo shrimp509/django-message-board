@@ -143,10 +143,15 @@ def edit(request: WSGIRequest, resource: str, id: int):
 
 @csrf_exempt
 def delete(request: WSGIRequest, resource: str, id: int):
-    if request.method == 'DELETE':
-        return _return_status("This is delete/{}/{} api, not yet implemented".format(resource, id))
+    result, _ = _check_request_format(request, "DELETE", resource, id, None, None)
+    if type(result) is JsonResponse:
+        return result
     else:
-        return _return_status("No such method")
+        res = result
+
+        # delete obj in db
+        res.delete()
+        return _return_status("{} id={} deleted".format(resource, id))
 
 
 # #####################
@@ -333,6 +338,8 @@ def _check_request_format(request: WSGIRequest, method: str, resource: str, id: 
                     else:
                         return res, body_field
                 except KeyError as e:
+                    if field is None and field_type is None:
+                        return res, None
                     return _return_status("Wrong body format, should contains `{}` field".format(field)), None
                 except Exception as e:
                     return _return_status("Unexpected error, please contact backend developer"), None
