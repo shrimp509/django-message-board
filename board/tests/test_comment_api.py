@@ -49,7 +49,7 @@ class CommentApiTest(TestCase):
         request = _get_request(
             '/board/post/{}/comment/'.format(post_id),
             {"content": '我要對發文做測試的留言囉'},
-            token=token
+            Authorization=token
         )
 
         response = json.loads(
@@ -61,7 +61,7 @@ class CommentApiTest(TestCase):
         request = _get_request(
             '/board/post/{}/comment/'.format(post_id),
             {"wrong_key": '我要對發文做測試的留言囉'},
-            token=token
+            Authorization=token
         )
 
         response = json.loads(

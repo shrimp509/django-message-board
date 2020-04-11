@@ -62,7 +62,7 @@ class T2CommentApiTest(TestCase):
         request = _get_request(
             '/board/comment/{}/t2_comment/'.format(comment_id),
             {"content": '這是測試的二階留言哦'},
-            token=token
+            Authorization=token
         )
 
         response = json.loads(
@@ -74,7 +74,7 @@ class T2CommentApiTest(TestCase):
         request = _get_request(
             '/board/comment/{}/t2_comment/'.format(comment_id),
             {"wrong_key": '這是測試的二階留言哦'},
-            token=token
+            Authorization=token
         )
 
         response = json.loads(
