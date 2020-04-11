@@ -126,3 +126,17 @@ def check_field_the_same(a, b):
         return True
     else:
         return False
+
+
+def find_user(email: str):
+    exist = User.objects.filter(email=email)
+
+    err_msg = None
+
+    if len(exist) == 0:
+        err_msg = "Email `{}` not found".format(email)
+
+    for user in exist:
+        return user
+
+    return err_msg

@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from message_board import settings
-from .data_checker import check_register_data, check_login_data
+from .data_checker import check_register_data, check_login_data, find_user
 from .models import User
 
 '''
@@ -21,10 +21,18 @@ def login(request: WSGIRequest):
         err_msg = check_login_data(account)
 
         if err_msg is None:
-            return _return_status("Login succeed", token=_get_token(
-                account['email'],
-                account['password']
-            ))
+
+            user = find_user(account['email'])
+
+            if isinstance(user, User):
+                return _return_status("Login succeed",
+                                      name=find_user(account['email']).name,
+                                      token=_get_token(
+                                          account['email'],
+                                          account['password']
+                                      ))
+            else:
+                return _return_status("Login failed", err_msg=user)
         else:
             return _return_status("Login failed", err_msg)
 

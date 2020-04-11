@@ -26,7 +26,7 @@ class LoginApiTest(TestCase):
         )
 
         # should be not OK
-        self.assertIsNotNone(
+        self.assertIsNotNone(                           # empty info
             check_login_data(
                 {
                     "email": "",
