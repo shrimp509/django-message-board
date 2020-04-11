@@ -115,28 +115,30 @@ def t2_comment(request: WSGIRequest, comment_id: int):
 
 @csrf_exempt
 def like(request: WSGIRequest, resource: str, id: int):
-    result = _check_request_format(request, "PATCH", resource, id)
+    result, added_likes = _check_request_format(request, "PATCH", resource, id, 'add', int)
     if type(result) is JsonResponse:
         return result
     else:
         res = result
-        try:
-            added_likes = json.loads(request.body)['add']
-            if type(added_likes) is not int:
-                return _return_status("Wrong body format, `add` field should be `int`")
-            else:
-                res.liked = int(res.liked) + added_likes
-                res.save()
-                return _return_status("like updated")
-        except KeyError as e:
-            return _return_status("Wrong body format, should contains `{}` field".format("add"))
+
+        # update likes into db
+        res.liked = int(res.liked) + added_likes
+        res.save()
+        return _return_status("like updated")
+
 
 @csrf_exempt
 def edit(request: WSGIRequest, resource: str, id: int):
-    if request.method == 'PATCH':
-        return _return_status("This is edit/{}/{} api, not yet implemented".format(resource, id))
+    result, content = _check_request_format(request, "PATCH", resource, id, 'content', str)
+    if type(result) is JsonResponse:
+        return result
     else:
-        return _return_status("No such method")
+        res = result
+
+        # update content into db
+        res.content = content
+        res.save()
+        return _return_status("content updated")
 
 
 @csrf_exempt
@@ -308,7 +310,7 @@ def _save_t2comment(belonged_comment: Comment, user: User, content: str):
         return False
 
 
-def _check_request_format(request: WSGIRequest, method: str, resource: str, id: int):
+def _check_request_format(request: WSGIRequest, method: str, resource: str, id: int, field: str, field_type: object):
     if request.method == method:
         if resource in resources:
             # check id exist
@@ -323,10 +325,20 @@ def _check_request_format(request: WSGIRequest, method: str, resource: str, id: 
                 msg = "No this resource"
 
             if type(msg) == Post or type(msg) == Comment or type(msg) == T2Comment:
-                return msg
+                res = msg
+                try:
+                    body_field = json.loads(request.body)[field]
+                    if type(body_field) is not field_type:
+                        return _return_status("Wrong body format, `{}` filed should be `{}`".format(field, field_type)), None
+                    else:
+                        return res, body_field
+                except KeyError as e:
+                    return _return_status("Wrong body format, should contains `{}` field".format(field)), None
+                except Exception as e:
+                    return _return_status("Unexpected error, please contact backend developer"), None
             else:
-                return _return_status("{} id={} not found".format(resource, id))
+                return _return_status("{} id={} not found".format(resource, id)), None
         else:
-            return _return_status("Wrong resources")
+            return _return_status("Wrong resources"), None
     else:
-        return _return_status("No such method")
+        return _return_status("No such method"), None
