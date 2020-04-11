@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from account.apis import register, login
+from account.apis import register, login, logout
 from board.apis import post, comment, t2_comment, like, edit, delete
 
 api_path = 'api/v1/'
@@ -29,6 +29,9 @@ urlpatterns = [
 
     path(api_path + 'login/', login),
     path(api_path + 'login', login),
+
+    path(api_path + 'logout/', logout),
+    path(api_path + 'logout', logout),
 
     path(api_path + 'board/post/', post),
     path(api_path + 'board/post', post),

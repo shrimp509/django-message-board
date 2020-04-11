@@ -6,9 +6,9 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from message_board import settings
+from message_board.settings import SECRET_KEY
 from .data_checker import check_register_data, check_login_data, find_user
-from .models import User
+from .models import User, BlackList
 
 '''
 Get `Email` and `Password` from request body
@@ -61,6 +61,33 @@ def register(request: WSGIRequest):
     return _return_status("Wrong method", err_msg="no GET method in register")
 
 
+'''
+Add token into blacklist
+then, return a status
+'''
+@csrf_exempt
+def logout(request: WSGIRequest):
+    if request.method == 'PATCH':
+        token = request.headers.get('Authorization')
+        if token is None:
+            return _return_status("Wrong header format", err_msg='should contains `Authorization` field')
+        else:
+            # validate token is valid JWT or not
+            result = _validate_token(token)
+            if type(result) is dict:
+                # check if already in blacklist
+                if not BlackList.objects.filter(token=token).exists():
+                    # add token into blacklist
+                    blacklist = BlackList()
+                    blacklist.token = token
+                    blacklist.save()
+                return _return_status("Logout succeed")
+            else:
+                return _return_status("Logout succeed with invalid token")
+    else:
+        return _return_status("No such method")
+
+
 # #############################
 # Private methods
 # #############################
@@ -91,4 +118,14 @@ def _dict2object_user(user_dict):
 
 
 def _get_token(email: str, password: str):
-    return jwt.encode({'email': email, 'password': password, 'exp': int(time.time()) + 86400 * 7}, settings.SECRET_KEY, 'HS256').decode('UTF-8')
+    return jwt.encode({'email': email, 'password': password, 'exp': int(time.time()) + 86400 * 7}, SECRET_KEY, 'HS256').decode('UTF-8')
+
+
+def _validate_token(token: str):
+    try:
+        result = jwt.decode(token, SECRET_KEY)
+        return result
+    except jwt.ExpiredSignatureError as e:
+        return "Token expired"
+    except Exception as e:
+        return "Token invalid"

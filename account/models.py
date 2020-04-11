@@ -18,3 +18,5 @@ class User(models.Model):
         return str(self.name) + "/" + str(self.email)
 
 
+class BlackList(models.Model):
+    token = models.fields.TextField()
