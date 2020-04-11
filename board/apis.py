@@ -10,7 +10,7 @@ from django.db import models
 from message_board.settings import SECRET_KEY
 from .models import Post, Comment, T2Comment
 from account.data_checker import find_user
-from account.models import User
+from account.models import User, BlackList
 
 # #####################
 #   Global Variables
@@ -42,7 +42,7 @@ def post(request: WSGIRequest):
                 return _return_status('Wrong request body format', err_msg='body should be `content`')
         else:
             # invalid token
-            return _return_status('Invalid token', err_msg='token invalid or expired')
+            return _return_status('Invalid token', err_msg='token invalid or expired: {}'.format(token_body))
     else:
         return _return_status('No such method')
 
@@ -75,7 +75,7 @@ def comment(request: WSGIRequest, post_id: int):
                     except KeyError as e:
                         return _return_status("Wrong request body format", err_msg='body should be `content`')
         else:
-            return _return_status("Invalid token", err_msg='token invalid or expired')
+            return _return_status("Invalid token", err_msg='token invalid or expired: {}'.format(token_body))
     else:
         return _return_status("No such method")
 
@@ -108,7 +108,7 @@ def t2_comment(request: WSGIRequest, comment_id: int):
                     except KeyError as e:
                         return _return_status("Wrong request body format", err_msg='body should be `content`')
         else:
-            return _return_status("Invalid token", err_msg='token invalid or expired')
+            return _return_status("Invalid token", err_msg='token invalid or expired: {}'.format(token_body))
     else:
         return _return_status("No such method")
 
@@ -183,6 +183,10 @@ def _return_status(status: str, **kwargs):
 def _resolve_jwt(token):
     try:
         data = jwt.decode(token, SECRET_KEY)
+
+        if BlackList.objects.filter(token=token).exists():
+            return "token expired"
+
         return TokenBody(data)
     except jwt.ExpiredSignatureError as e:
         print("expired")
@@ -316,6 +320,16 @@ def _save_t2comment(belonged_comment: Comment, user: User, content: str):
 
 
 def _check_request_format(request: WSGIRequest, method: str, resource: str, id: int, field: str, field_type: object):
+    # check token
+    token = request.headers.get('Authorization')
+    if token is None:
+        return _return_status("Token not found, headers should contain `Authorization` field"), None
+    else:
+        result = _resolve_jwt(token)
+        if type(result) is not TokenBody:
+            return _return_status("Token invalid or expired: {}".format(result)), None
+
+    # check all
     if request.method == method:
         if resource in resources:
             # check id exist
