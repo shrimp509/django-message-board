@@ -12,6 +12,10 @@ from .models import Post, Comment, T2Comment
 from account.data_checker import find_user
 from account.models import User
 
+# #####################
+#   Global Variables
+# #####################
+resources = ["post", "comment", "t2_comment"]
 
 # #####################
 #   APIs
@@ -105,6 +109,40 @@ def t2_comment(request: WSGIRequest, comment_id: int):
                         return _return_status("Wrong request body format", err_msg='body should be `content`')
         else:
             return _return_status("Invalid token", err_msg='token invalid or expired')
+    else:
+        return _return_status("No such method")
+
+
+@csrf_exempt
+def like(request: WSGIRequest, resource: str, id: int):
+    result = _check_request_format(request, "PATCH", resource, id)
+    if type(result) is JsonResponse:
+        return result
+    else:
+        res = result
+        try:
+            added_likes = json.loads(request.body)['add']
+            if type(added_likes) is not int:
+                return _return_status("Wrong body format, `add` field should be `int`")
+            else:
+                res.liked = int(res.liked) + added_likes
+                res.save()
+                return _return_status("like updated")
+        except KeyError as e:
+            return _return_status("Wrong body format, should contains `{}` field".format("add"))
+
+@csrf_exempt
+def edit(request: WSGIRequest, resource: str, id: int):
+    if request.method == 'PATCH':
+        return _return_status("This is edit/{}/{} api, not yet implemented".format(resource, id))
+    else:
+        return _return_status("No such method")
+
+
+@csrf_exempt
+def delete(request: WSGIRequest, resource: str, id: int):
+    if request.method == 'DELETE':
+        return _return_status("This is delete/{}/{} api, not yet implemented".format(resource, id))
     else:
         return _return_status("No such method")
 
@@ -268,3 +306,27 @@ def _save_t2comment(belonged_comment: Comment, user: User, content: str):
         return True
     except Exception as e:
         return False
+
+
+def _check_request_format(request: WSGIRequest, method: str, resource: str, id: int):
+    if request.method == method:
+        if resource in resources:
+            # check id exist
+            from .data_checker import find_post, find_comment, find_t2_comment
+            if resource == resources[0]:
+                msg = find_post(id)
+            elif resource == resources[1]:
+                msg = find_comment(id)
+            elif resource == resources[2]:
+                msg = find_t2_comment(id)
+            else:
+                msg = "No this resource"
+
+            if type(msg) == Post or type(msg) == Comment or type(msg) == T2Comment:
+                return msg
+            else:
+                return _return_status("{} id={} not found".format(resource, id))
+        else:
+            return _return_status("Wrong resources")
+    else:
+        return _return_status("No such method")
