@@ -217,7 +217,7 @@ def _save_post(request_body: dict, token_body: TokenBody):
 
 def _get_all_posts():
     # all posts
-    all_posts = Post.objects.all()
+    all_posts = Post.objects.all().order_by('-created')
 
     posts = []
 
