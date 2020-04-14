@@ -138,7 +138,7 @@ def edit(request: WSGIRequest, resource: str, id: int):
         # update content into db
         res.content = content
         res.save()
-        return _return_status("content updated")
+        return _return_status("Content updated")
 
 
 @csrf_exempt
@@ -323,7 +323,7 @@ def _check_request_format(request: WSGIRequest, method: str, resource: str, id: 
     # check token
     token = request.headers.get('Authorization')
     if token is None:
-        return _return_status("Token not found, headers should contain `Authorization` field"), None
+        return _return_status("Wrong header format", err_msg="headers should contain `Authorization` field"), None
     else:
         result = _resolve_jwt(token)
         if type(result) is not TokenBody:
@@ -348,20 +348,20 @@ def _check_request_format(request: WSGIRequest, method: str, resource: str, id: 
                 try:
                     body_field = json.loads(request.body)[field]
                     if type(body_field) is not field_type:
-                        return _return_status("Wrong body format, `{}` filed should be `{}`".format(field, field_type)), None
+                        return _return_status("Wrong body format", err_msg="`{}` field should be `{}`".format(field, field_type)), None
                     else:
                         return res, body_field
                 except KeyError as e:
                     if field is None and field_type is None:
                         return res, None
-                    return _return_status("Wrong body format, should contains `{}` field".format(field)), None
+                    return _return_status("Wrong body format", err_msg="should contains `{}` field".format(field)), None
                 except Exception as e:
                     if field is None and field_type is None:
                         return res, None
                     return _return_status("Unexpected error, please contact backend developer"), None
             else:
-                return _return_status("{} id={} not found".format(resource, id)), None
+                return _return_status("Wrong id", err_msg="{} id={} not found".format(resource, id)), None
         else:
-            return _return_status("Wrong resources"), None
+            return _return_status("Wrong resources", err_msg="resources should be `post` or `comment` or `t2_comment`"), None
     else:
         return _return_status("No such method"), None

@@ -36,6 +36,8 @@ def login(request: WSGIRequest):
         else:
             return _return_status("Login failed", err_msg)
 
+    return _return_status("Wrong method", err_msg='only POST method')
+
 '''
 Get 'Email', 'Password' and 'Name' from request body
 then, return a status
@@ -58,7 +60,7 @@ def register(request: WSGIRequest):
         else:
             return _return_status("Wrong field", err_msg)
 
-    return _return_status("Wrong method", err_msg="no GET method in register")
+    return _return_status("Wrong method", err_msg="only POST method")
 
 
 '''
@@ -98,7 +100,7 @@ def _return_status(message: str, err_msg=None, **kwargs):
     elif err_msg is not None and kwargs is None:
         return JsonResponse({"status": message, "err_msg": err_msg})
     elif err_msg is None and kwargs is not None:
-        msg = {"stauts": message}
+        msg = {"status": message}
         for key, value in kwargs.items():
             msg[key] = value
         return JsonResponse(msg)
