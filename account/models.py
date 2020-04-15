@@ -20,3 +20,6 @@ class User(models.Model):
 
 class BlackList(models.Model):
     token = models.fields.TextField()
+
+    def __str__(self):
+        return str(self.token)

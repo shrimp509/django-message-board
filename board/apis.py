@@ -24,6 +24,16 @@ resources = ["post", "comment", "t2_comment"]
 def post(request: WSGIRequest):
     if request.method == 'GET':
         all_posts = _get_all_posts()
+
+        token = request.headers.get('Authorization')
+        if token:
+            token_body = _resolve_jwt(token)
+            if type(token_body) is TokenBody:
+                user = find_user(
+                    token_body.email
+                )
+            return _return_status('Get posts succeed', name=user.name, posts=all_posts)
+
         return _return_status('Get posts succeed', posts=all_posts)
     elif request.method == 'POST':
 
@@ -192,7 +202,7 @@ def _resolve_jwt(token):
         print("expired")
         return "token expired"
     except Exception as e:
-        return "token invalid"
+        return "token invalid, {}".format(e)
 
 
 def _resolve_request_body(request):

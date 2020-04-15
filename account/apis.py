@@ -26,7 +26,6 @@ def login(request: WSGIRequest):
 
             if isinstance(user, User):
                 return _return_status("Login succeed",
-                                      name=find_user(account['email']).name,
                                       token=_get_token(
                                           account['email'],
                                           account['password']
