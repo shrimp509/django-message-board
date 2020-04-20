@@ -1,0 +1,937 @@
+FORMAT: 1A
+HOST: http://message-board.nctu.me/api/v1/
+
+# MessageBoard
+
+A simple web app with account system.
+
+
+## Register [/register]
+
+`/register`
+
+### Register [POST]
+
+Using `name`, `email` and `password` to register an account.
+
++ Request (application/json)
+
+        {
+            "name": "Sam",
+            "email": "rongson@gmail.com",
+            "password": "testing123"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "status": "User created"
+        }
+
++ Request (application/json)
+
+        {
+            "name": "",
+            "email": ""
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "Please contact backend developer, Wrong field format, raw error: object of type 'NoneType' has no len()"
+        }
+
++ Request (application/json)
+
+        {
+            "name": "",
+            "email": "",
+            "password": ""
+        }
+
++ Response 200 (application/json)
+
+
+        {
+            "status": "Wrong field",
+            "err_msg": {
+                "err_name": "name length error, should be 1~20, your len of name: 0",
+                "err_password": "password length error, should be 6~30, your length of password: 0",
+                "err_email": "email format error, cannot have two or more `@`, yours: ['']"
+            }
+        }
+
++ Request (application/json)
+
+        {
+            "name": "AnotherSam",
+            "email": "sam@gmail.com",
+            "password": "sam"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "account created failed"
+            "err_msg": {
+                "err_password": "password length error, should be 6~30, your length of password: 3"
+            }
+        }
+
++ Request (application/json)
+
+        {
+            "name": "",
+            "email": "sam@gmail.com",
+            "password": "rongson"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "account created failed"
+            "err_msg": {
+                "err_name": "name length error, should be 1~20, your len of name: 0"
+            }
+        }
+
+## Login [/login]
+
+`/login`
+
+### Login [POST]
+
+Using `email` and `password` to login.
+
++ Request (application/json)
+
+        {
+            "email": "rongson@gmail.com",
+            "password": "testing123"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "login OK"
+        }
+
++ Request (application/json)
+
+        {
+            "email": "rongson@gmail.com",
+            "password": ""
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "login failed",
+            "err_msg": {
+                "err_password": "Password incorrect"
+            }
+        }
+
++ Request (application/json)
+
+        {
+            "email": "rong@gmail.com",
+            "password": "rongson"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": "login failed",
+            "err_msg": "Email `rong@gmail.com` not found"
+        }
+
+## Logout [/logout]
+
+`/logout`
+
+### Logout [PATCH]
+
+Just tell backend the user with token logout.
+
++ Request (application/json)
+    
+    + Headers
+            
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
++ Response 200 (application/json)
+
+        {
+            "status": "logout succeed"
+        }
+
++ Request (application/json)
+    
+    + Headers
+            
+            Authorization: "eyJhGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
++ Response 200 (application/json)
+
+        {
+            "status": "Logout succeed with invalid token"
+        }
+
++ Request (application/json)
+
+
++ Response 200 (application/json)
+
+        {
+            "status": "Wrong header format",
+            "err_msg": "should contains `Authorization` field"
+        }
+
+## Post [/board/post]
+
+`/board/post`
+
+### Get all posts [GET]
+
+Maybe not `all` posts (too large), `5` or `10` posts is more feasible way.
+
++ Response (application/json)
+
+        {
+            "status": "Get posts succeed",
+            "posts": [
+                {
+                    "post_id": 22,
+                    "author": "Sam/rongson@gmail.com",
+                    "created": "2020-04-14 11:57:40",
+                    "last_updated": "2020-04-14 11:59:15",
+                    "content": "乾，原來是 django 的 USE_TIMEZONE 在雷！",
+                    "liked": 0,
+                    "comments_count": 2,
+                    "comments": [
+                        {
+                            "post_id": 22,
+                            "comment_id": 22,
+                            "author": "Sam/rongson@gmail.com",
+                            "created": "2020-04-14 14:20:23",
+                            "last_updated": "2020-04-14 14:20:23",
+                            "content": "可惡～～～～～",
+                            "liked": 99,
+                            "t2_comments_counts": 0,
+                            "t2_comments": []
+                        },
+                        {
+                            "post_id": 22,
+                            "comment_id": 23,
+                            "author": "Sam/rongson@gmail.com",
+                            "created": "2020-04-14 14:20:45",
+                            "last_updated": "2020-04-14 14:20:45",
+                            "content": "真4滴",
+                            "liked": 0,
+                            "t2_comments_counts": 2,
+                            "t2_comments": [
+                                {
+                                    "comment_id": 23,
+                                    "t2_comment_id": 1,
+                                    "author": "Sam/rongson@gmail.com",
+                                    "created": "2020-04-14 14:21:01",
+                                    "last_updated": "2020-04-14 14:21:01",
+                                    "content": "安捏美賽",
+                                    "liked": 0
+                                },
+                                {
+                                    "comment_id": 23,
+                                    "t2_comment_id": 2,
+                                    "author": "Sam/rongson@gmail.com",
+                                    "created": "2020-04-14 14:21:15",
+                                    "last_updated": "2020-04-14 14:21:33",
+                                    "content": "每賽抹前途",
+                                    "liked": 0
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "post_id": 19,
+                    "author": "Sam/rongson@gmail.com",
+                    "created": "2020-04-13 12:27:24",
+                    "last_updated": "2020-04-13 12:27:24",
+                    "content": "禮拜三(4/15) 早上十點開會（結案）",
+                    "liked": 0,
+                    "comments_count": 1,
+                    "comments": [
+                        {
+                            "post_id": 19,
+                            "comment_id": 21,
+                            "author": "ru/ru@hotmail.com",
+                            "created": "2020-04-13 16:45:39",
+                            "last_updated": "2020-04-13 16:45:39",
+                            "content": "行的",
+                            "liked": 0,
+                            "t2_comments_counts": 0,
+                            "t2_comments": []
+                        }
+                    ]
+                },
+                {
+                    "post_id": 18,
+                    "author": "Sam/rongson@gmail.com",
+                    "created": "2020-04-13 12:26:41",
+                    "last_updated": "2020-04-13 12:26:41",
+                    "content": "250字，優、缺點各三項",
+                    "liked": 0,
+                    "comments_count": 1,
+                    "comments": [
+                        {
+                            "post_id": 18,
+                            "comment_id": 20,
+                            "author": "ru/ru@hotmail.com",
+                            "created": "2020-04-13 16:45:30",
+                            "last_updated": "2020-04-13 16:45:30",
+                            "content": "好",
+                            "liked": 0,
+                            "t2_comments_counts": 0,
+                            "t2_comments": []
+                        }
+                    ]
+                },
+                {
+                    "post_id": 6,
+                    "author": "Sam/rongson@gmail.com",
+                    "created": "2020-04-12 06:29:21",
+                    "last_updated": "2020-04-12 06:29:21",
+                    "content": "修改時區之後的留言哦",
+                    "liked": 78,
+                    "comments_count": 1,
+                    "comments": [
+                        {
+                            "post_id": 6,
+                            "comment_id": 19,
+                            "author": "Sam/rongson@gmail.com",
+                            "created": "2020-04-13 12:18:03",
+                            "last_updated": "2020-04-13 12:18:03",
+                            "content": "我",
+                            "liked": 10,
+                            "t2_comments_counts": 0,
+                            "t2_comments": []
+                        }
+                    ]
+                },
+                {
+                    "post_id": 5,
+                    "author": "Sam/rongson@gmail.com",
+                    "created": "2020-04-12 06:12:04",
+                    "last_updated": "2020-04-12 06:12:04",
+                    "content": "修改發文",
+                    "liked": 93,
+                    "comments_count": 0,
+                    "comments": []
+                }
+            ]
+        }
+    
+### Post a new post [POST]
+
++ Request (application/json)
+        
+    + Headers
+
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "content": "新的一篇發文～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+        
+            {
+                "status": "Post created"
+            }
+
++ Request (application/json)
+        
+    + Headers
+
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "wrong_key": "新的一篇發文～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+        
+            {
+                "status": "Wrong request body format",
+                "err_msg": "body should be `content`"
+            }
+
++ Request (application/json)
+        
+    + Headers
+
+            Authorization: "hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "content": "新的一篇發文～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+        
+            {
+                "status": "Invalid token",
+                "err_msg": "token invalid or expired: hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
+## Comment [/board/post/{{post_id}}/comment]
+
+`/board/post/{{post_id}}/comment`
+
+### Post a new comment [POST]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "content": "新的第一層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "status": "Comment created"
+            }
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "wrong_key": "新的第一層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong request body format",
+                "err_msg": "body should be `content`"
+            }
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "content": "新的第一層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "status": "No such post_id: {id}"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "status": "No such email: {email}"
+            }
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: "eyhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+            
+            {
+                "content": "新的第一層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "status": "Invalid token",
+                "err_msg": "token invalid or expired: eyhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
+## T2Comment [/board/post/{{post_id}}/comment/{{comment_id}}/t2_comment]
+
+`/board/comment/{{comment_id}}/t2_comment`
+
+### Post a new t2 comment [POST]
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "content": "新的第二層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+            
+            {
+                "status": "T2comment created"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "content": "新的第二層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+            
+            {
+                "status": "No such comment_id: {id}"
+            }
+  
++ Response 201 (application/json)
+
+    + Body
+            
+            {
+                "status": "No such email: {email}"
+            }
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "wrong_key": "新的第二層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+            
+            {
+                "status": "Wrong request body format",
+                "err_msg": "body should be `content`"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "JzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "content": "新的第二層留言～"
+            }
+            
++ Response 201 (application/json)
+
+    + Body
+            
+            {
+                "status": "Invalid token",
+                "err_msg": "token invalid or expired: JzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
+## Like [/board/like/post/id/]
+
++ `/board/like/post/{{post_id}}`
++ `/board/like/comment/{{comment_id}}`
++ `/board/like/t2_comment/{{t2_comment_id}}`
+
+### Send likes [PATCH]
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "add": 5
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "like updated"
+            }
+
++ Request (application/json)
+            
+    + Body
+    
+            {
+                "add": 5
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong header format",
+                "err_msg": "headers should contain `Authorization` field"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "add": 5
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Token invalid or expired: hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "wrong_key": 5
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong body format, should contains `add` field"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "add": "wrong_type"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong body format",
+                "err_msg": "`add` field should be `int`"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "add": 3
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong id",
+                "err_msg": "post id={id} not found"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong resouces",
+                "err_msg": "resources should be `post` or `comment` or `t2_comment`"
+            }
+
+## Edit [/board/edit/post/id/]
+
++ `/board/edit/post/{{post_id}}`
++ `/board/edit/comment/{{comment_id}}`
++ `/board/edit/t2_comment/{{t2_comment_id}}`
+
+### Edit a resource [PATCH]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            
+    + Body
+    
+            {
+                "content": "這是修改後的新內容"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Content updated"
+            }
+
++ Request (application/json)
+    
+    + Body
+    
+            {
+                "content": "這是修改後的新內容"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong header format",
+                "err_msg": "headers should contain `Authorization` field"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "content": "這是修改後的新內容"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Token invalid or expired: hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "wrong_key": "這是修改後的新內容"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong body format, should contains `content` field"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "content": 0
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong body format",
+                "err_msg": "`content` field should be `string`"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "content": "這是修改後的新內容"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong id",
+                "err_msg": "post id={id} not found"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong resouces",
+                "err_msg": "resources should be `post` or `comment` or `t2_comment`"
+            }
+
+## Delete [/board/delete/post/id]
+
++ `/board/delete/post/{{post_id}}`
++ `/board/delete/comment/{{comment_id}}`
++ `/board/delete/t2_comment/{{t2_comment_id}}`
+
+### Delete a resource [DELETE]
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
++ Response 200 (application/json)
+
+    + Body
+            {
+                "status": "post deleted"
+            }
+
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong header format",
+                "err_msg": "headers should contain `Authorization` field"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Token invalid or expired: hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            }
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    + Body
+    
+            {
+                "content": "這是修改後的新內容"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong id",
+                "err_msg": "post id={id} not found"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "status": "Wrong resouces",
+                "err_msg": "resources should be `post` or `comment` or `t2_comment`"
+            }
