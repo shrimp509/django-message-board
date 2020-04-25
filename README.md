@@ -1,25 +1,19 @@
-# Django留言板練習題 at 好想
+# 好想留言板（後端專案）
+
+-> 留言板呈現：[留言板連結](http://yun-ru-tseng.gitlab.io/messageboard/#/messageBoard)
 
 ## 專案需求
-[需求連結](https://www.notion.so/60bbd52758b64bbc9f80a2d046a9f589)
+[需求連結](https://www.notion.so/2020-03-28-91a6c9702f4f4238bdbbdb9f65580a59)
 
-![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/requirements.png)
+![需求圖](https://github.com/shrimp509/django_message_board/blob/master/screenshots/requirement.png)
 
 ## 畫面截圖
 
 登入
-![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/login.png)
+![登入圖](https://github.com/shrimp509/django_message_board/blob/master/screenshots/login.png)
 
 可發表文章、針對文章留言（僅一層留言）
-![](https://github.com/shrimp509/django_message_board/blob/master/screenshots/board.png)
-
-## 未完成
-* 僅完成對發文的第一層留言
-* 偷用框架、還沒做完QQ
-* 留言沒按照新->舊排序
-* 自信廢
-
-![](https://imgur.dcard.tw/WDWrBTO.jpg)
+![留言板圖](https://github.com/shrimp509/django_message_board/blob/master/screenshots/board.png)
 
 ## 怎麼使用這個專案？
 
